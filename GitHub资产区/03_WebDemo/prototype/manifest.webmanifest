@@ -1,0 +1,44 @@
+{
+  "name": "不思异：九州",
+  "short_name": "不思异九州",
+  "description": "一场西行采风的文字旅途：驾旧车、记志怪、修总志。",
+  "lang": "zh-CN",
+  "start_url": "./index.html?intro=1",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#0b0907",
+  "theme_color": "#0b0907",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "开始试玩",
+      "short_name": "试玩",
+      "url": "./index.html?intro=1"
+    },
+    {
+      "name": "设备自检",
+      "short_name": "自检",
+      "url": "./device-check.html"
+    }
+  ]
+}

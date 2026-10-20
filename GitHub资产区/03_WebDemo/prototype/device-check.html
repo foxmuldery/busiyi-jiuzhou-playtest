@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0907" />
+    <title>不思异：九州 · 设备自检</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b0907;
+        --panel: #17130e;
+        --line: rgba(218, 190, 134, 0.24);
+        --gold: #e0b25e;
+        --ink: #f4ead5;
+        --muted: #b9a88a;
+        --ok: #9fd18a;
+        --warn: #e2b36a;
+        --bad: #e08d7a;
+        --ui: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+        --serif: "Songti SC", "Noto Serif CJK SC", Georgia, serif;
+      }
+      @font-face {
+        font-family: "Device Check Serif";
+        src: url("../../02_设计资产/可用素材/字体/fonts/LXGWWenKai-Regular.woff2") format("woff2");
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Device Check Sans";
+        src: url("../../02_设计资产/可用素材/字体/fonts/NotoSansSC-wght.woff2") format("woff2");
+        font-display: swap;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: max(16px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right))
+          max(18px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+        background: radial-gradient(circle at 50% 0%, rgba(120, 84, 40, 0.24), transparent 48%), var(--bg);
+        color: var(--ink);
+        font-family: var(--ui);
+        -webkit-text-size-adjust: 100%;
+      }
+      #safeProbe {
+        position: fixed;
+        inset: 0;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+          env(safe-area-inset-left);
+        pointer-events: none;
+        visibility: hidden;
+      }
+      .shell { width: min(720px, 100%); margin: 0 auto; }
+      header { border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 14px; }
+      .kicker { margin: 0 0 6px; color: var(--gold); font-size: 12px; letter-spacing: 0.14em; }
+      h1 { margin: 0; font-family: var(--serif); font-size: clamp(26px, 7vw, 34px); font-weight: 400; }
+      .lead { margin: 8px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+      .panel { border: 1px solid var(--line); background: rgba(23, 19, 14, 0.9); padding: 12px 14px; }
+      .row {
+        display: grid;
+        grid-template-columns: 108px minmax(0, 1fr);
+        gap: 10px;
+        padding: 9px 0;
+        border-bottom: 1px solid rgba(218, 190, 134, 0.1);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      .row:last-child { border-bottom: 0; }
+      .row b { color: var(--muted); font-weight: 500; }
+      .row span { min-width: 0; overflow-wrap: anywhere; }
+      .state { display: inline-flex; align-items: center; gap: 5px; }
+      .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+      .dot.ok { background: var(--ok); }
+      .dot.warn { background: var(--warn); }
+      .dot.bad { background: var(--bad); }
+      .actions { display: grid; gap: 8px; margin-top: 14px; }
+      button {
+        min-height: 46px;
+        border: 1px solid rgba(218, 190, 134, 0.44);
+        border-radius: 8px;
+        background: rgba(51, 39, 24, 0.9);
+        color: var(--ink);
+        font: inherit;
+        font-size: 15px;
+        cursor: pointer;
+      }
+      button.primary { background: linear-gradient(180deg, #9a4a2c, #73301f); border-color: #b86a43; }
+      button:active { filter: brightness(1.12); }
+      .status { min-height: 22px; margin: 10px 0 0; color: var(--muted); font-size: 12px; }
+      textarea {
+        width: 100%;
+        min-height: 150px;
+        margin-top: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #0d0b08;
+        color: var(--ink);
+        padding: 10px;
+        font: 12px/1.5 ui-monospace, monospace;
+        resize: vertical;
+      }
+      .note { margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    </style>
+  <style>html.bsi-auth-pending body{visibility:hidden;background:#080704}</style>
+<script>window.BSI_PLAYTEST_AUTH={hash:"019be397cf10ba2e242d7507db0852b1dcab423c62bd150024ef1333a68136aa",redirect:""};try{if(sessionStorage.getItem("BSI_JIUZHOU_AUTH")!=="ok")document.documentElement.classList.add("bsi-auth-pending")}catch(e){document.documentElement.classList.add("bsi-auth-pending")}</script>
+<script src="../../../playtest-auth.js"></script>
+  </head>
+  <body>
+    <div id="safeProbe" aria-hidden="true"></div>
+    <main class="shell">
+      <header>
+        <p class="kicker">DEVICE CHECK · 30 秒</p>
+        <h1>设备自检</h1>
+        <p class="lead">在准备试玩的手机上打开这一页，点「重新检测」，再点「复制报告」发回。报告只包含设备与浏览器能力，不包含游玩存档。</p>
+      </header>
+
+      <section class="panel" aria-label="检测结果">
+        <div class="row"><b>页面 / 视口</b><span id="rowViewport">检测中…</span></div>
+        <div class="row"><b>屏幕 / DPR</b><span id="rowScreen">检测中…</span></div>
+        <div class="row"><b>安全区</b><span id="rowSafeArea">检测中…</span></div>
+        <div class="row"><b>WebGL</b><span id="rowWebgl">检测中…</span></div>
+        <div class="row"><b>GPU</b><span id="rowGpu">检测中…</span></div>
+        <div class="row"><b>字体</b><span id="rowFonts">检测中…</span></div>
+        <div class="row"><b>声音</b><span id="rowAudio">尚未测试</span></div>
+        <div class="row"><b>存储</b><span id="rowStorage">检测中…</span></div>
+        <div class="row"><b>网络 / 减少动态</b><span id="rowNetwork">检测中…</span></div>
+        <div class="row"><b>CPU / 内存</b><span id="rowCpu">检测中…</span></div>
+        <div class="row"><b>触屏 / 指针</b><span id="rowPointer">检测中…</span></div>
+        <div class="row"><b>错误日志</b><span id="rowErrors">检测中…</span></div>
+        <div class="row"><b>User Agent</b><span id="rowUa">检测中…</span></div>
+      </section>
+
+      <div class="actions">
+        <button class="primary" id="rerun" type="button">重新检测</button>
+        <button id="testAudio" type="button">测试声音（会响一声）</button>
+        <button id="copyReport" type="button">复制报告</button>
+        <button id="downloadReport" type="button">下载报告</button>
+        <button id="submitReport" type="button" hidden>提交到收件台</button>
+        <button id="clearErrors" type="button">清空本机错误日志</button>
+      </div>
+      <p class="status" id="status" role="status"></p>
+      <textarea id="reportText" readonly aria-label="设备报告文本"></textarea>
+      <p class="note">声音测试只在点击后播放，符合 iOS 的音频解锁规则；如果没听到，请检查静音开关与媒体音量。</p>
+    </main>
+
+    <script src="./error-log.js"></script>
+    <script>
+      (function () {
+        "use strict";
+        var report = {};
+        var statusEl = document.getElementById("status");
+        var reportEl = document.getElementById("reportText");
+
+        function text(id, value) {
+          var el = document.getElementById(id);
+          if (el) el.textContent = value;
+        }
+        function dot(kind) {
+          return '<span class="dot ' + kind + '"></span>';
+        }
+        function safeArea() {
+          var probe = document.getElementById("safeProbe");
+          var cs = getComputedStyle(probe);
+          return {
+            top: parseFloat(cs.paddingTop) || 0,
+            right: parseFloat(cs.paddingRight) || 0,
+            bottom: parseFloat(cs.paddingBottom) || 0,
+            left: parseFloat(cs.paddingLeft) || 0
+          };
+        }
+        function glInfo() {
+          var out = { webgl2: false, webgl1: false, renderer: "" };
+          try {
+            var c = document.createElement("canvas");
+            var gl2 = c.getContext("webgl2");
+            var gl = gl2 || c.getContext("webgl");
+            out.webgl2 = !!gl2;
+            out.webgl1 = !!gl;
+            if (gl) {
+              var ext = gl.getExtension("WEBGL_debug_renderer_info");
+              out.renderer = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : "unknown";
+              var lose = gl.getExtension("WEBGL_lose_context");
+              if (lose) lose.loseContext();
+            }
+          } catch (error) {
+            out.error = String(error && error.message || error);
+          }
+          return out;
+        }
+        async function fontInfo() {
+          var out = { sans: false, serif: false, error: "" };
+          if (!document.fonts || !document.fonts.load) return out;
+          try {
+            var sans = await document.fonts.load('16px "Device Check Sans"', "不思异九州");
+            var serif = await document.fonts.load('16px "Device Check Serif"', "不思异九州");
+            out.sans = sans.length > 0;
+            out.serif = serif.length > 0;
+          } catch (error) {
+            out.error = String(error && error.message || error);
+          }
+          return out;
+        }
+        function storageInfo() {
+          try {
+            var key = "__bsi_check__";
+            localStorage.setItem(key, "1");
+            var ok = localStorage.getItem(key) === "1";
+            localStorage.removeItem(key);
+            sessionStorage.setItem(key, "1");
+            sessionStorage.removeItem(key);
+            return { local: ok, session: true };
+          } catch (error) {
+            return { local: false, session: false, error: String(error && error.message || error) };
+          }
+        }
+        function networkInfo() {
+          var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+          return {
+            type: conn && conn.effectiveType || "unknown",
+            downlink: conn && conn.downlink || null,
+            saveData: !!(conn && conn.saveData),
+            reducedMotion: !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)
+          };
+        }
+
+        async function run() {
+          statusEl.textContent = "检测中…";
+          var safe = safeArea();
+          var gl = glInfo();
+          var fonts = await fontInfo();
+          var storage = storageInfo();
+          var net = networkInfo();
+          report = {
+            at: new Date().toISOString(),
+            ua: navigator.userAgent,
+            viewport: { width: innerWidth, height: innerHeight, dpr: devicePixelRatio, orientation: (screen.orientation && screen.orientation.type) || "" },
+            screen: { width: screen.width, height: screen.height },
+            safeArea: safe,
+            webgl: gl,
+            fonts: fonts,
+            audio: report.audio || { tested: false },
+            storage: storage,
+            network: net,
+            touch: { maxTouchPoints: navigator.maxTouchPoints || 0, coarse: matchMedia("(pointer: coarse)").matches },
+            cpu: { cores: navigator.hardwareConcurrency || null, memory: navigator.deviceMemory || null },
+            errors: window.BSI_ERROR_LOG ? window.BSI_ERROR_LOG.list() : [],
+            errorsText: window.BSI_ERROR_LOG ? window.BSI_ERROR_LOG.text(5) : "无"
+          };
+          text("rowViewport", innerWidth + " × " + innerHeight + (innerWidth > innerHeight ? " · 横屏" : " · 竖屏"));
+          text("rowScreen", screen.width + " × " + screen.height + " · DPR " + devicePixelRatio);
+          text("rowSafeArea", "上 " + safe.top + " / 右 " + safe.right + " / 下 " + safe.bottom + " / 左 " + safe.left + " px");
+          text("rowWebgl", (gl.webgl2 ? "WebGL2" : gl.webgl1 ? "WebGL1" : "不可用") + (gl.error ? " · " + gl.error : ""));
+          text("rowGpu", gl.renderer || "未暴露（Safari 常见）");
+          text("rowFonts", (fonts.sans ? "黑体 OK" : "黑体失败") + " · " + (fonts.serif ? "楷体 OK" : "楷体失败") + (fonts.error ? " · " + fonts.error : ""));
+          text("rowStorage", (storage.local ? "localStorage OK" : "localStorage 不可写") + " · " + (storage.session ? "sessionStorage OK" : "sessionStorage 不可写"));
+          text("rowNetwork", net.type + (net.downlink ? " · " + net.downlink + "Mb/s" : "") + (net.saveData ? " · 省流量" : "") + " · " + (net.reducedMotion ? "减少动态" : "普通动态"));
+          var lowPower = net.saveData || innerWidth < 1024 || (report.cpu.memory && report.cpu.memory <= 2) || (report.cpu.cores && report.cpu.cores <= 2);
+          text("rowCpu", (report.cpu.cores ? report.cpu.cores + " 核" : "核心数未知") + " · " + (report.cpu.memory ? report.cpu.memory + "GB 内存" : "内存未知") + " · " + (lowPower ? "手机会保留 CSS 舞台" : "可开 WebGL 舞台"));
+          text("rowPointer", (report.touch.maxTouchPoints ? report.touch.maxTouchPoints + " 点触屏" : "无触屏") + " · " + (report.touch.coarse ? "粗指针" : "精指针"));
+          text("rowUa", navigator.userAgent);
+          var errorCount = report.errors.length;
+          text("rowErrors", errorCount ? errorCount + " 条，最近：" + report.errors[errorCount - 1].message.slice(0, 80) : "无");
+          reportEl.value = JSON.stringify(report, null, 2);
+          statusEl.textContent = "检测完成。点「复制报告」发回即可。";
+        }
+
+        function copyReport() {
+          var value = JSON.stringify(report, null, 2);
+          reportEl.value = value;
+          function fallback() {
+            reportEl.select();
+            document.execCommand("copy");
+            statusEl.textContent = "已复制（兼容模式）。";
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(value).then(function () {
+              statusEl.textContent = "已复制。";
+            }).catch(fallback);
+          } else {
+            fallback();
+          }
+        }
+        function downloadReport() {
+          var blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
+          var a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = "九州设备自检_" + new Date().toISOString().slice(0, 10) + ".json";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+          statusEl.textContent = "报告已下载。";
+        }
+        function testAudio() {
+          try {
+            var Ctx = window.AudioContext || window.webkitAudioContext;
+            if (!Ctx) throw new Error("无 AudioContext");
+            var ctx = new Ctx();
+            ctx.resume().then(function () {
+              var osc = ctx.createOscillator();
+              var gain = ctx.createGain();
+              osc.type = "sine";
+              osc.frequency.value = 540;
+              gain.gain.value = 0.08;
+              osc.connect(gain).connect(ctx.destination);
+              osc.start();
+              osc.stop(ctx.currentTime + 0.18);
+              report.audio = { tested: true, state: ctx.state, sampleRate: ctx.sampleRate };
+              document.getElementById("rowAudio").innerHTML = dot("ok") + " 已播放 540Hz · " + ctx.state + " · " + ctx.sampleRate + "Hz";
+              statusEl.textContent = "如果没听到，请检查静音开关与媒体音量。";
+            }).catch(function (error) {
+              report.audio = { tested: true, error: String(error && error.message || error) };
+              document.getElementById("rowAudio").innerHTML = dot("bad") + " 失败：" + report.audio.error;
+            });
+          } catch (error) {
+            report.audio = { tested: true, error: String(error && error.message || error) };
+            document.getElementById("rowAudio").innerHTML = dot("bad") + " 失败：" + report.audio.error;
+          }
+        }
+
+        document.getElementById("rerun").addEventListener("click", run);
+        document.getElementById("copyReport").addEventListener("click", copyReport);
+        document.getElementById("downloadReport").addEventListener("click", downloadReport);
+        document.getElementById("testAudio").addEventListener("click", testAudio);
+        document.getElementById("submitReport").addEventListener("click", function () {
+          var button = this;
+          button.disabled = true;
+          fetch("/api/device-report", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(report)
+          }).then(function (response) {
+            if (!response.ok) throw new Error("HTTP " + response.status);
+            return response.json();
+          }).then(function (result) {
+            statusEl.textContent = result.id ? "已提交：" + result.id : "已提交。";
+            button.textContent = "已提交";
+          }).catch(function (error) {
+            statusEl.textContent = "提交失败：" + (error.message || error) + "（可改用下载）";
+            button.disabled = false;
+          });
+        });
+
+        fetch("/api/device-report/health", { cache: "no-store" })
+          .then(function (response) { return response.ok ? response.json() : null; })
+          .then(function (result) {
+            if (result && result.ok) document.getElementById("submitReport").hidden = false;
+          })
+          .catch(function () {});
+
+        document.getElementById("clearErrors").addEventListener("click", function () {
+          if (window.BSI_ERROR_LOG) window.BSI_ERROR_LOG.clear();
+          report.errors = [];
+          report.errorsText = "无";
+          text("rowErrors", "无");
+          reportEl.value = JSON.stringify(report, null, 2);
+          statusEl.textContent = "本机错误日志已清空。";
+        });
+        run();
+      })();
+    </script>
+  </body>
+</html>

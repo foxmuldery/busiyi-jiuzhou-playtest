@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>《不思异：九州》平衡健康报告</title>
+    <style>
+      :root { color-scheme: dark; font-family: "Songti SC", "Noto Serif SC", "STSong", serif; background: #15100b; color: #f4ead0; }
+      body { margin: 0; padding: 28px; background: radial-gradient(circle at 50% 0%, rgba(217, 170, 91, 0.12), transparent 42%), #15100b; }
+      main { max-width: 920px; margin: 0 auto; }
+      h1 { margin: 0 0 10px; font-size: 34px; letter-spacing: 0; }
+      p { color: rgba(244, 234, 208, 0.78); line-height: 1.65; }
+      .summary { border: 1px solid rgba(234, 205, 140, 0.24); border-radius: 8px; padding: 16px; background: rgba(255, 238, 189, 0.06); }
+      table { width: 100%; border-collapse: collapse; margin-top: 18px; overflow: hidden; border: 1px solid rgba(234, 205, 140, 0.22); border-radius: 8px; }
+      th, td { padding: 10px 11px; border-bottom: 1px solid rgba(234, 205, 140, 0.14); text-align: left; }
+      th { color: #d2bd8c; font-size: 13px; background: rgba(0, 0, 0, 0.18); }
+      td { font-size: 14px; }
+      code { color: #d9aa5b; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+      a { color: #d9aa5b; }
+    </style>
+  <style>html.bsi-auth-pending body{visibility:hidden;background:#080704}</style>
+<script>window.BSI_PLAYTEST_AUTH={hash:"019be397cf10ba2e242d7507db0852b1dcab423c62bd150024ef1333a68136aa",redirect:""};try{if(sessionStorage.getItem("BSI_JIUZHOU_AUTH")!=="ok")document.documentElement.classList.add("bsi-auth-pending")}catch(e){document.documentElement.classList.add("bsi-auth-pending")}</script>
+<script src="../../../playtest-auth.js"></script>
+  </head>
+  <body>
+    <main>
+      <h1>平衡健康报告</h1>
+      <section class="summary">
+        <p>生成时间：2026-10-20T00:33:50.146Z</p>
+        <p>simulationMode：<code>full-app-vm-dom-audio-stub</code>；ruleSource：<code>app.js/window.BSI_PROTOTYPE</code></p>
+        <p>种子：<code>audit-2</code>；每种策略模拟：100 局；目标地点：<code>kyushu_rift</code>。</p>
+        <p><strong>结论：P0 平衡通过</strong>。门槛 8/8；新手告警 68%；神志 P10 31，粮草 P10 30；压力路线：dream_to_rift。</p>
+        <p>门槛：<strong>8/8</strong>。P0 看通关、硬失败和早期死局；P1 继续调默认压力、新手压力和资源下限。</p>
+        <p>真实规则覆盖：配置条件 12 个（语言 3、flag 5）；各策略的路线条件、采风、语言值与生效 flag 均从 app state/trace 统计。</p>
+        <p>Markdown 版：<a href="./balance-status.md">balance-status.md</a></p>
+      </section>
+      <table>
+        <thead>
+          <tr><th>门槛</th><th>当前</th><th>目标</th><th>状态</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+              <td>四策略通关率</td>
+              <td>100%</td>
+              <td>&gt;= 98%</td>
+              <td>通过</td>
+            </tr>
+            <tr>
+              <td>硬失败</td>
+              <td>0</td>
+              <td>0</td>
+              <td>通过</td>
+            </tr>
+            <tr>
+              <td>前 3 步死局</td>
+              <td>0</td>
+              <td>0</td>
+              <td>通过</td>
+            </tr>
+            <tr>
+              <td>默认玩家告警</td>
+              <td>6%</td>
+              <td>2% - 18%</td>
+              <td>通过</td>
+            </tr>
+            <tr>
+              <td>新手压力告警</td>
+              <td>68%</td>
+              <td>45% - 85%</td>
+              <td>通过</td>
+            </tr>
+            <tr>
+              <td>新手补救局</td>
+              <td>0%</td>
+              <td>&lt;= 5%</td>
+              <td>通过</td>
+            </tr>
+            <tr>
+              <td>新手神志 P10</td>
+              <td>31</td>
+              <td>&gt;= 12</td>
+              <td>通过</td>
+            </tr>
+            <tr>
+              <td>粮草 P10 下限</td>
+              <td>30</td>
+              <td>&gt;= 30</td>
+              <td>通过</td>
+            </tr>
+        </tbody>
+      </table>
+      <table>
+        <thead>
+          <tr><th>策略</th><th>成功率</th><th>告警率</th><th>补救局</th><th>均步数</th><th>神志 P10</th><th>粮草 P10</th><th>压力路线</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+              <td>谨慎</td>
+              <td>100%</td>
+              <td>0%</td>
+              <td>0%</td>
+              <td>29.79</td>
+              <td>56</td>
+              <td>48</td>
+              <td><code>dream_to_rift</code></td>
+            </tr>
+            <tr>
+              <td>均衡</td>
+              <td>100%</td>
+              <td>6%</td>
+              <td>0%</td>
+              <td>26.41</td>
+              <td>52</td>
+              <td>40</td>
+              <td><code>dream_to_rift</code></td>
+            </tr>
+            <tr>
+              <td>冒险</td>
+              <td>100%</td>
+              <td>100%</td>
+              <td>7%</td>
+              <td>27.26</td>
+              <td>0</td>
+              <td>33</td>
+              <td><code>dream_to_rift</code></td>
+            </tr>
+            <tr>
+              <td>新手</td>
+              <td>100%</td>
+              <td>68%</td>
+              <td>0%</td>
+              <td>27.49</td>
+              <td>31</td>
+              <td>30</td>
+              <td><code>dream_to_rift</code></td>
+            </tr>
+        </tbody>
+      </table>
+    </main>
+  </body>
+</html>
